@@ -3,10 +3,12 @@ import pandas as pd
 import requests
 import datetime
 from tkinter import *
+import os
+import shutil
 
 
 class RamblePars:
-    def __init__(self, days=3, pages=30, tag_file="tags.json"):
+    def __init__(self, days=3, pages=60, tag_file="tags.json"):
         current_time = datetime.datetime.today()
 
         self.current_date = current_time
@@ -59,8 +61,6 @@ class RamblePars:
 
             # df = pd.DataFrame(news_list)
 
-
-
     def load_tag(self):
         with open(self.tag_file, mode="r", encoding="utf-8") as r_file:
             data = r_file.read()
@@ -80,6 +80,13 @@ class RamblePars:
                        f"{self.current_date.year}-{self.current_date.month}-{self.current_date.day}")
                 full_day_url.append(url)
             yield full_day_url
+
+
+def work_with_os():
+    if os.path.isdir("files"):
+        shutil.rmtree("files")
+    os.mkdir("files")
+
 
 def input_main():
     days = input("Введите количество дней: ")

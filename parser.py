@@ -2,7 +2,6 @@ import json
 import pandas as pd
 import requests
 import datetime
-from tkinter import *
 import os
 import shutil
 
@@ -55,7 +54,7 @@ class RamblePars:
                                 news_list.append(value_annotation)
                                 # print(f"{self.current_date.day}-{self.current_date.month}-{self.current_date.year}")
                                 # print(value_annotation, tag, j)
-                                # break
+                                break
                     df = pd.DataFrame({"news": news_list})
                     df.to_excel(news_xlsx_file, sheet_name=tag, index=True)
 

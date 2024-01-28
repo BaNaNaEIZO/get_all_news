@@ -8,8 +8,8 @@ import shutil
 
 
 class RamblePars:
-    def __init__(self, days=3, pages=60, tag_file="tags.json"):
-        current_time = datetime.datetime.today()
+    def __init__(self, days=3, pages=60, tag_file="tags.json", start_day=datetime.datetime.today()):
+        current_time = start_day
 
         self.current_date = current_time
         self.days = days
@@ -33,8 +33,9 @@ class RamblePars:
                 data = json.loads(data_json.text)
                 for i in range(len(data)):
                     value_annotation = data[i]["long_title"]
-                    list_value_annotation.append(value_annotation)
-
+                    value_id = data[i]["id"]
+                    value_normalized_title = data[i]["normalized_title"]
+                    list_value_annotation.append([value_annotation, value_id, value_normalized_title])
             yield list_value_annotation
 
     def search_news(self):
@@ -48,18 +49,23 @@ class RamblePars:
             with pd.ExcelWriter(file) as news_xlsx_file:
                 for tag in all_tags:
                     news_list = []
-                    for value_annotation in list_value_annotation:
 
+                    for value_annotation in list_value_annotation:
                         for j in self.tags[tag]:
-                            if value_annotation.find(j) > 0:
-                                news_list.append(value_annotation)
+                            # print(value_annotation[i])
+                            if value_annotation[0].find(j) > 0:
+                                temp = value_annotation[0].replace('"', "")
+                                my_str = '=HYPERLINK("{}", "{}")'.format(
+                                    f"https://news.rambler.ru/{value_annotation[1]}-{value_annotation[2]}",
+                                    temp)
+                                print(my_str, tag)
+                                news_list.append(my_str)
                                 # print(f"{self.current_date.day}-{self.current_date.month}-{self.current_date.year}")
                                 # print(value_annotation, tag, j)
-                                # break
+                                break
                     df = pd.DataFrame({"news": news_list})
+                    # print(df)
                     df.to_excel(news_xlsx_file, sheet_name=tag, index=True)
-
-            # df = pd.DataFrame(news_list)
 
     def load_tag(self):
         with open(self.tag_file, mode="r", encoding="utf-8") as r_file:
@@ -92,3 +98,10 @@ def input_main():
     days = input("Введите количество дней: ")
     pages = input("Введите количетсво страниц: ")
     return int(days), int(pages)
+
+def choice_day():
+    choice = input("Ввдите дату или пропустите. Формат(dd/mm/yyyy): ")
+    date = datetime.datetime.today()
+    if choice:
+        date = datetime.datetime.strptime(choice, '%d/%m/%Y').date()
+    return date
